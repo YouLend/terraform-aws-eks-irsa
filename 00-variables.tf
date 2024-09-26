@@ -26,8 +26,9 @@ variable "namespace" {
 }
 
 variable "service_account" {
-  type    = string
-  default = null
+  description = "List of service account names"
+  type        = list(string)
+  default     = []
 }
 
 variable "iam_policy" {

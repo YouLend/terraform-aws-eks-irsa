@@ -8,7 +8,7 @@ data "aws_iam_policy_document" "irsa" {
     for_each = var.cluster_oidc_urls
     content {
       effect = "Allow"
-
+      
       actions = ["sts:AssumeRoleWithWebIdentity"]
 
       principals {
@@ -18,12 +18,15 @@ data "aws_iam_policy_document" "irsa" {
         ]
       }
 
-      condition {
-        test     = "StringEquals"
-        variable = format("%s:sub", statement.value)
-        values = [
-          format("system:serviceaccount:%s:%s", local.namespace, local.service_account)
-        ]
+      dynamic "condition" {
+        for_each = local.service_account
+        content {
+          test     = "StringEquals"
+          variable = format("%s:sub", statement.value)
+          values = [
+            format("system:serviceaccount:%s:%s", local.namespace, condition.value)
+          ]
+        }
       }
     }
   }
